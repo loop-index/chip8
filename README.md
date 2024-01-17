@@ -9,23 +9,31 @@ There are three programs in this package, the emulator and an assembler/disassem
 ### The Emulator
 You can run the main emulator with cargo:
 
-<code> cargo run --bin chip8 -- --rom <PATH/TO/ROM></code>
+```bash
+cargo run --bin chip8 -- --rom <PATH/TO/ROM>
+```
 
 Additional arguments:
-<code>-f, --frames <FRAMERATE>       Number of frames to render per second [default: 100]
+```bash
+-f, --frames <FRAMERATE>       Number of frames to render per second [default: 100]
 -r, --rom <ROM>                The ROM to load
 -c, --cycles <TICK_PER_FRAME>  Number of instructions to execute per frame [default: 8]
     --no-keypad                Disable keypad rendering
     --smpte                    Enable SMPTE color mode
--h, --help                     Print help</code>
+-h, --help                     Print help
+```
 
 ### The Assembler
 The program takes a text file and outputs a hex file. Usage:
-<code> cargo run --bin asm <PATH/TO/SOURCE> <PATH/TO/OUTPUT> </code>
+```bash
+cargo run --bin asm <PATH/TO/SOURCE> <PATH/TO/OUTPUT>
+```
 
 ### The Disassembler
 Similarly, the program takes a hex file and outputs a text file. Usage:
-<code> cargo run --bin deasm <PATH/TO/SOURCE> <PATH/TO/OUTPUT> </code>
+```bash
+cargo run --bin deasm <PATH/TO/SOURCE> <PATH/TO/OUTPUT>
+```
 
 ## Acknowledgements
 The included ROM folder is taken from https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html
