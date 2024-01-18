@@ -216,8 +216,8 @@ const SMPTE_COLORS: [&str; 8] = [
 /// 
 /// ## Arguments
 /// 
-/// * `buffer` - The screen buffer
-/// * `keypad` - The keypad map
+/// * `chip` - The Chip8 to draw
+/// * `args` - The arguments passed to the program
 fn draw(chip: &Chip8, args: &Args) {
     // Draw the outside border
     print!("╭");

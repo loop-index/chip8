@@ -1,5 +1,3 @@
-use std::fs;
-
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
 
@@ -25,7 +23,7 @@ const FONTSET: [u8; FONTSET_SIZE] = [
     0xF0, 0x80, 0x80, 0x80, 0xF0, // C
     0xE0, 0x90, 0x90, 0x90, 0xE0, // D
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-    0xF0, 0x80, 0xF0, 0x80, 0x80 // F
+    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
 pub struct Chip8 {
@@ -88,10 +86,7 @@ impl Chip8 {
         }
 
         if self.sound_timer > 0 {
-            if self.sound_timer == 1 {
-                // Beep
-            }
-
+            // Beep
             self.sound_timer -= 1;
         }
     }
@@ -421,13 +416,17 @@ impl Chip8 {
             (0xF, _, 0, 0xA) => {
                 let vx = hex2 as usize;
 
+                let mut key_pressed = false;
                 for i in 0..16 {
                     if self.keypad[i] {
                         self.registers[vx] = i as u8;
-                    } else {
-                        // Decrement pc to repeat instruction
-                        self.pc -= 2;
+                        key_pressed = true;
                     }
+                }
+
+                // If no key is pressed, decrement PC to repeat instruction
+                if !key_pressed {
+                    self.pc -= 2;
                 }
 
                 str_buffer.push_str(&format!("LD V{:X}, K", vx));
@@ -535,8 +534,7 @@ impl Chip8 {
 /// ## Arguments
 /// 
 /// * `program` - The Chip-8 program to disassemble, as a byte array
-/// * `output_file` - The file to write the disassembled program to
-pub fn disassemble(program: &[u8], output_file: &str) {
+pub fn disassemble(program: &[u8]) -> String {
     let count = program.len() / 2;
     let mut str_buffer = String::new();
     for i in 0..count {
@@ -775,7 +773,7 @@ pub fn disassemble(program: &[u8], output_file: &str) {
         str_buffer.push_str("\n");
     }
 
-    fs::write(output_file, str_buffer).expect("Unable to write file");
+    return str_buffer;
 }
 
 /// Assembles a Chip-8 program into machine code
@@ -783,8 +781,7 @@ pub fn disassemble(program: &[u8], output_file: &str) {
 /// ## Arguments
 /// 
 /// * `program` - The Chip-8 program to assemble, as a string read from a file
-/// * `output_file` - The file to write the assembled program to
-pub fn assemble(program: &str, output_file: &str) {
+pub fn assemble(program: &str) -> Vec<u8> {
     let mut bytes = Vec::new();
     let mut lines = program.lines();
 
@@ -1099,6 +1096,5 @@ pub fn assemble(program: &str, output_file: &str) {
         }
     }
 
-    // Write the bytes to a file
-    fs::write(output_file, bytes).expect("Unable to write file");
+    return bytes;
 }

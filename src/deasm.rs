@@ -18,7 +18,10 @@ fn main() {
 
     // Assemble input file
     let start_time = std::time::Instant::now();
-    disassemble(&input, &args[2]);
+    let output = disassemble(&input);
+
+    // Write output file
+    std::fs::write(&args[2], output).expect("Failed to write output file");
 
     // Print time taken
     println!("Diassembled file in {}us. Output: {}", start_time.elapsed().as_micros(), &args[2]);
