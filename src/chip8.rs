@@ -1,3 +1,5 @@
+use core::panic;
+
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
 
@@ -140,7 +142,11 @@ impl Chip8 {
 
             // 00EE - RET - Return from subroutine
             (0, 0, 0xE, 0xE) => {
-                self.pc = self.pop_stack();
+                if let Some(addr) = self.pop_stack() {
+                    self.pc = addr;
+                } else {
+                    panic!("Stack underflow!")
+                }
                 str_buffer.push_str("RET");
             },
 
@@ -157,6 +163,8 @@ impl Chip8 {
                 let call_addr = opcode & 0x0FFF;
                 if self.push_stack(self.pc) {
                     self.pc = call_addr;
+                } else {
+                    panic!("Stack overflow!")
                 }
 
                 str_buffer.push_str(&format!("CALL {:X}", call_addr));
@@ -518,13 +526,14 @@ impl Chip8 {
         }
     }
 
-    fn pop_stack(&mut self) -> u16 {
+    // Using "pop" very liberally here; it doesn't actually return the value at the top of the stack, it pops a value and then return the new top of the stack
+    fn pop_stack(&mut self) -> Option<u16> {
         if self.sp > 0 {
             self.sp -= 1;
-            return self.stack[self.sp];
+            return Some(self.stack[self.sp]);
         } else {
             // println!("Stack empty!");
-            return 0;
+            return None;
         }
     }
 }

@@ -59,7 +59,9 @@ impl Drop for CleanUp {
     fn drop(&mut self) {
         terminal::disable_raw_mode().expect("Could not disable raw mode");
 
-        // Print reason for panic
+        // Enable cursor
+        print!("\x1b[?25h");
+
         if std::thread::panicking() {
             println!("Panic! at the disco");
         }
@@ -130,7 +132,7 @@ fn main() {
     chip8.load_rom(&rom);
 
     // Display instructions
-    println!("\rRunning ROM {} at {} FPS", args.rom, args.framerate);
+    println!("\rRunning ROM {} ({} bytes) at {} FPS", args.rom, rom.len(), args.framerate);
     println!("\rKeybindings:");
     println!("\r\t1 2 3 4");
     println!("\r\tq w e r");
@@ -222,7 +224,7 @@ fn draw(chip: &Chip8, args: &Args) {
     // Draw the outside border
     print!("╭");
     print!("─CHIP-8");
-    for _ in 0..((SCREEN_WIDTH >> 1) - 12) {
+    for _ in 0..((SCREEN_WIDTH / 2) - 12) {
         print!("─");
     }
     print!("BEEP─");
@@ -235,7 +237,7 @@ fn draw(chip: &Chip8, args: &Args) {
 
     // Draw the top border
     print!("│╭");
-    for _ in 0..SCREEN_WIDTH >> 1 {
+    for _ in 0..SCREEN_WIDTH / 2 {
         print!("─");
     }
     println!("╮│\r");
@@ -243,12 +245,12 @@ fn draw(chip: &Chip8, args: &Args) {
     // Draw the screen in blocks of 2x4
     let buffer = chip.get_screen_buffer();
     let mut color_ptr: usize = 0;
-    for y in 0..SCREEN_HEIGHT >> 2 {
+    for y in 0..SCREEN_HEIGHT / 4 {
         // Draw the left border
         print!("││");
 
         // Draw the screen
-        for x in 0..SCREEN_WIDTH >> 1 {
+        for x in 0..SCREEN_WIDTH / 2 {
             let encoding = 
                 buffer[y * 4 * SCREEN_WIDTH + x * 2] << 7 |
                 buffer[y * 4 * SCREEN_WIDTH + x * 2 + 1] << 3 |
@@ -276,7 +278,7 @@ fn draw(chip: &Chip8, args: &Args) {
 
     // Draw the bottom border
     print!("│╰");
-    for _ in 0..SCREEN_WIDTH >> 1 {
+    for _ in 0..SCREEN_WIDTH / 2 {
         print!("─");
     }
     println!("╯│\r");
@@ -285,10 +287,22 @@ fn draw(chip: &Chip8, args: &Args) {
     if !args.no_keypad {
         let keypad = chip.get_keypad();
         // Draw the top border
-        println!("│       ╭───╮╭───╮╭───╮╭───╮       │\r");
+        print!("│");
+        for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+            print!(" ");
+        }
+        print!("╭───╮╭───╮╭───╮╭───╮");
+        for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+            print!(" ");
+        }
+        println!("│\r");
+
 
         for y in 0..4 {
-            print!("│       ");
+            print!("│");
+            for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+                print!(" ");
+            }
             for x in 0..4 {
                 let key = KEY_ORDER[y * 4 + x];
                 let pressed = keypad[KEY_ORDER_HEX[y * 4 + x]];
@@ -306,19 +320,38 @@ fn draw(chip: &Chip8, args: &Args) {
 
                 print!("│");
             }
-            println!("       │\r");
-            if y < 3 {
-                println!("│       ├───┤├───┤├───┤├───┤       │\r");
-            } else {
-                println!("│       ╰───╯╰───╯╰───╯╰───╯       │\r");
+            for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+                print!(" ");
             }
+            println!("│\r");
+
+            // Draw the middle border
+            print!("│");
+            for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+                print!(" ");
+            }
+            if y < 3 {
+                print!("├───┤├───┤├───┤├───┤");
+            } else {
+                print!("╰───╯╰───╯╰───╯╰───╯");
+            }
+            for _ in 0..((SCREEN_WIDTH / 4) - 9) {
+                print!(" ");
+            }
+            println!("│\r");
         }
     }
-    println!("│                                  │\r");
+
+    // Spacing
+    print!("│");
+    for _ in 0..((SCREEN_WIDTH / 2) + 2) {
+        print!(" ");
+    }
+    println!("│\r");
 
     // Draw the outside border
     print!("╰");
-    for _ in 0..((SCREEN_WIDTH >> 1) + 2) {
+    for _ in 0..((SCREEN_WIDTH / 2) + 2) {
         print!("─");
     }
     println!("╯\r");
